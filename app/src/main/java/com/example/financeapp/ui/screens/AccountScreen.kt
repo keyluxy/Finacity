@@ -23,8 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.financeapp.data.MockData
@@ -43,6 +41,7 @@ import com.example.financeapp.ui.theme.CustomLightGrey
 import androidx.compose.material3.Divider
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -54,6 +53,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -249,20 +250,14 @@ fun AccountScreen() {
                 Button(
                     onClick = { showBottomSheet = false },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE46962),
-                        contentColor = CustomWhite
-                    ),
-                    shape = RoundedCornerShape(0.dp),
-
-                    ) {
-                    Icon(
-                        painterResource(id = AppIcons.Cancel),
-                        contentDescription = "Отмена",
-                        tint = CustomWhite,
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Отмена", color = CustomWhite)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE46962), contentColor = CustomWhite),
+                    shape = RoundedCornerShape(0.dp)
+                ) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painterResource(id = AppIcons.Cancel), contentDescription = "Отмена", tint = CustomWhite)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Отмена", color = CustomWhite)
+                    }
                 }
             }
         }
