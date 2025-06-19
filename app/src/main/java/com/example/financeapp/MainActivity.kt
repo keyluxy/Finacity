@@ -55,6 +55,8 @@ import com.example.financeapp.ui.theme.CustomTextColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.compose.runtime.SideEffect
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,6 +79,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppContent() {
     val navController = rememberNavController()
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setStatusBarColor(
+            color = CustomGreen,
+            darkIcons = false
+        )
+    }
     val items = listOf(
         Screen.Expenses,
         Screen.Income,
