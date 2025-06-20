@@ -18,6 +18,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.financeapp.data.MockData
@@ -59,16 +60,23 @@ fun ExpenseDetailScreen(expenseId: String? = null, onBackClick: () -> Unit) {
             "",
             "",
             ""
-        ) // Or create a new empty ExpenseDetailed object
+        )
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
+                modifier = Modifier
+                    .height(28.dp)
+                    .fillMaxWidth()
+                    .background(Color(0xFF1D1B20)),
                 title = {
                     Text(
                         text = "Мои расходы",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.W400,
+                            color = CustomWhite
+                        ),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -78,7 +86,7 @@ fun ExpenseDetailScreen(expenseId: String? = null, onBackClick: () -> Unit) {
                         Icon(
                             painterResource(id = AppIcons.ic_canel),
                             contentDescription = "Отмена",
-                            tint = CustomTextColor
+                            tint = CustomWhite
                         )
                     }
                 },
@@ -87,15 +95,15 @@ fun ExpenseDetailScreen(expenseId: String? = null, onBackClick: () -> Unit) {
                         Icon(
                             painterResource(id = AppIcons.Ok),
                             contentDescription = "Сохранить",
-                            tint = CustomTextColor
+                            tint = CustomWhite
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = CustomGreen,
-                    titleContentColor = CustomTextColor,
-                    navigationIconContentColor = CustomTextColor,
-                    actionIconContentColor = CustomTextColor
+                    containerColor = Color(0xFF1D1B20),
+                    titleContentColor = CustomWhite,
+                    navigationIconContentColor = CustomWhite,
+                    actionIconContentColor = CustomWhite
                 )
             )
         },

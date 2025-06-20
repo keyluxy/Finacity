@@ -6,18 +6,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.financeapp.data.MockData
 import com.example.financeapp.ui.components.ListItem
 import com.example.financeapp.ui.theme.*
 import androidx.compose.ui.res.painterResource
 import com.example.financeapp.R
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import com.example.financeapp.ui.screens.expenses.ExpensesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,8 +29,10 @@ fun ExpensesScreen(
     onExpenseClick: (String) -> Unit,
     onHistoryClick: () -> Unit,
     onAnalysisClick: () -> Unit,
-    onAddExpenseClick: () -> Unit
+    onAddExpenseClick: () -> Unit,
+    viewModel: ExpensesViewModel = hiltViewModel()
 ) {
+    val expenses by viewModel.expenses.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -88,7 +94,14 @@ fun ExpensesScreen(
                     color = CustomTextColor
                 )
                 Text(
-                    text = "436 558 ₽",
+                    text = expenses.sumOf {
+                        it.amount.replace(" ", "")
+                            .replace("₽", "")
+                            .replace(",", ".")
+                            .toDoubleOrNull() ?: 0.0
+                    }.let { total ->
+                        "%.2f ₽".format(total)
+                    },
                     style = MaterialTheme.typography.bodyLarge,
                     color = CustomTextColor
                 )
@@ -98,16 +111,15 @@ fun ExpensesScreen(
 
             LazyColumn {
                 items(
-                    items = MockData.expenses,
+                    items = expenses,
                     key = { expense -> expense.id }
                 ) { expense ->
                     ListItem(
                         leadingContent = {
                             Icon(
-                                painterResource(id = expense.icon!!),
+                                painterResource(id = R.drawable.ic_expenses),
                                 contentDescription = expense.title,
-                                modifier = Modifier
-                                    .size(24.dp),
+                                modifier = Modifier.size(24.dp),
                                 tint = Color.Unspecified
                             )
                         },
@@ -118,18 +130,11 @@ fun ExpensesScreen(
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = CustomTextColor
                                 )
-                                expense.subtitle?.let {
-                                    Text(
-                                        text = it,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = CustomTextColor
-                                    )
-                                }
                             }
                         },
                         trail = {
                             Text(
-                                text = expense.amount,
+                                text = expense.amount.toString(),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = CustomTextColor
                             )
