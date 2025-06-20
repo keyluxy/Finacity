@@ -1,36 +1,44 @@
 package com.example.financeapp.data.remote.dto
 
 import com.example.financeapp.data.model.Expense
+import com.example.financeapp.data.model.Income
 
 data class AccountBriefDto(
-    val id: String,
+    val id: Int,
     val name: String,
     val balance: String,
     val currency: String
 )
 
+data class CategoryDto(
+    val id: Int,
+    val name: String,
+    val emoji: String,
+    val isIncome: Boolean
+)
+
 data class TransactionResponse(
-    val id: String,
+    val id: Int,
     val account: AccountBriefDto,
     val category: CategoryDto?,
     val amount: String,
-    val transactionDate: Long,
+    val transactionDate: String,
     val comment: String?,
     val createdAt: String,
     val updatedAt: String
 )
 
-data class CategoryDto(
-    val id: String,
-    val name: String,
-    val icon: String,
-    val type: String // "income" или "outcome"
-)
-
 fun TransactionResponse.toExpense(): Expense = Expense(
-    id = id,
+    id = id.toString(),
     title = category?.name ?: "Без категории",
     subtitle = comment,
+    amount = amount,
+    icon = null // Можно добавить маппинг emoji->drawable
+)
+
+fun TransactionResponse.toIncome(): Income = Income(
+    id = id.toString(),
+    title = category?.name ?: "Без категории",
     amount = amount,
     icon = null // Можно добавить маппинг emoji->drawable
 ) 

@@ -2,6 +2,7 @@ package com.example.financeapp.di
 
 import com.example.financeapp.data.remote.TransactionApi
 import com.example.financeapp.data.repository.ExpenseRepository
+import com.example.financeapp.data.repository.IncomeRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,4 +30,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideExpenseRepository(api: TransactionApi): ExpenseRepository = ExpenseRepository(api)
+
+    @Provides
+    @Singleton
+    fun provideIncomeRepository(api: TransactionApi): IncomeRepository = IncomeRepository(api)
 } 
