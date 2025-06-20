@@ -11,14 +11,14 @@ import com.example.financeapp.R
 
 object MockData {
     val expenses = listOf(
-        Expense("1", "Аренда квартиры", null, "100 000 ₽", R.drawable.ic_home),
-        Expense("2", "Одежда", null, "100 000 ₽", R.drawable.ic_person),
-        Expense("3", "На собачку", "Джек", "100 000 ₽", R.drawable.ic_dog),
-        Expense("4", "На собачку", "Энни", "100 000 ₽", R.drawable.ic_dog),
-        Expense("5", "Ремонт квартиры", null, "100 000 ₽", R.drawable.ic_leading_element),
-        Expense("6", "Продукты", null, "100 000 ₽", R.drawable.ic_eat),
-        Expense("7", "Спортзал", null, "100 000 ₽", R.drawable.ic_sport),
-        Expense("8", "Медицина", null, "100 000 ₽", R.drawable.ic_tabl)
+        Expense("1", "Аренда квартиры", null, "100 000 ₽", R.drawable.ic_home.toString()),
+        Expense("2", "Одежда", null, "100 000 ₽", R.drawable.ic_person.toString()),
+        Expense("3", "На собачку", "Джек", "100 000 ₽", R.drawable.ic_dog.toString()),
+        Expense("4", "На собачку", "Энни", "100 000 ₽", R.drawable.ic_dog.toString()),
+        Expense("5", "Ремонт квартиры", null, "100 000 ₽", R.drawable.ic_leading_element.toString()),
+        Expense("6", "Продукты", null, "100 000 ₽", R.drawable.ic_eat.toString()),
+        Expense("7", "Спортзал", null, "100 000 ₽", R.drawable.ic_sport.toString()),
+        Expense("8", "Медицина", null, "100 000 ₽", R.drawable.ic_tabl.toString())
     )
 
     val expensesDetailed = listOf(

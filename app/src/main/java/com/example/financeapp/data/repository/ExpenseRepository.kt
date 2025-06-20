@@ -11,12 +11,17 @@ class ExpenseRepository @Inject constructor(
 ) {
     suspend fun getExpenses(token: String, from: Long, to: Long): List<Expense> {
         val accounts = api.getAccounts("Bearer $token")
-        Log.d("ExpenseRepository", "Все id аккаунтов: ${accounts.map { it.id }}")
+        val accountIds = accounts.map { it.id }
+        Log.d("ExpenseRepository", "Все id аккаунтов: $accountIds")
         val allExpenses = mutableListOf<Expense>()
         for (account in accounts) {
             val transactions = api.getTransactionsForAccount("Bearer $token", account.id.toString(), from, to)
-            Log.d("ExpenseRepository", "Account: ${account.id}, транзакций: ${transactions.size}")
-            transactions.forEach { Log.d("ExpenseRepository", it.toString()) }
+            if (transactions.isEmpty()) {
+                Log.d("ExpenseRepository", "Account: ${account.id}, транзакций: 0 (нет данных)")
+            } else {
+                Log.d("ExpenseRepository", "Account: ${account.id}, транзакций: ${transactions.size}")
+                transactions.forEach { Log.d("ExpenseRepository", it.toString()) }
+            }
             allExpenses += transactions
                 .filter { it.category?.isIncome == false }
                 .map { it.toExpense() }

@@ -5,18 +5,19 @@ import androidx.compose.ui.graphics.vector.ImageVector
 data class Expense(
     val id: String,
     val title: String,
-    val subtitle: String?, // например, "Аренда квартиры" - может быть null для некоторых трат
-    val amount: String, // например, "100 000 ₽"
-    val icon: Int? = null // Иконка для ведущего изображения
+    val subtitle: String?,
+    val amount: String,
+    val emoji: String? = null,
+    val icon: Int? = null
 )
 
 data class ExpenseDetailed(
     val id: String,
-    val account: String, // например, "Сбербанк"
-    val category: String, // например, "Ремонт"
-    val amount: String, // например, "25 270 ₽"
-    val date: String, // например, "25.02.2025"
-    val time: String, // например, "23:41"
-    val description: String?, // например, "Ремонт - фурнитура для дверей" - может быть null
-    val createdAt: String // точное время создания записи
+    val account: String,
+    val category: String,
+    val amount: String,
+    val date: String,
+    val time: String,
+    val description: String?,
+    val createdAt: String
 ) 

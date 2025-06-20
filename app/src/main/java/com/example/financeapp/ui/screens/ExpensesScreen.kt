@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.financeapp.ui.components.ListItem
 import com.example.financeapp.ui.theme.*
 import androidx.compose.ui.res.painterResource
@@ -131,12 +132,20 @@ fun ExpensesScreen(
                 ) { expense ->
                     ListItem(
                         leadingContent = {
-                            Icon(
-                                painterResource(id = R.drawable.ic_expenses),
-                                contentDescription = expense.title,
-                                modifier = Modifier.size(24.dp),
-                                tint = Color.Unspecified
-                            )
+                            if (!expense.emoji.isNullOrBlank()) {
+                                Text(
+                                    text = expense.emoji,
+                                    fontSize = 24.sp,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            } else {
+                                Icon(
+                                    painterResource(id = R.drawable.ic_expenses),
+                                    contentDescription = expense.title,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = Color.Unspecified
+                                )
+                            }
                         },
                         content = {
                             Column {

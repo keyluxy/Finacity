@@ -33,6 +33,7 @@ fun TransactionResponse.toExpense(): Expense = Expense(
     title = category?.name ?: "Без категории",
     subtitle = comment,
     amount = amount,
+    emoji = category?.emoji,
     icon = null // Можно добавить маппинг emoji->drawable
 )
 
