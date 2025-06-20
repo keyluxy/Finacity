@@ -1,6 +1,6 @@
 [versions]
 agp = "8.5.1"
-kotlin = "1.9.0"
+kotlin = "2.0.0"
 coreKtx = "1.12.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -11,6 +11,14 @@ composeBom = "2024.02.00"
 lottieCompose = "6.4.0"
 materialIconsExtended = "1.7.8"
 navigationCompose = "2.7.7"
+hilt = "2.56"
+hiltNavigationCompose = "1.2.0"
+lifecycleViewModel = "2.7.0"
+coroutines = "1.7.3"
+retrofit = "2.9.0"
+gson = "2.10.1"
+javapoet = "1.13.0"
+composeCompiler = "1.5.15"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,7 +39,24 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
 
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewModel" }
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+javapoet = { group = "com.squareup", name = "javapoet", version.ref = "javapoet" }
+compose-compiler = { group = "androidx.compose.compiler", name = "compiler", version.ref = "composeCompiler" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+#kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+
 
