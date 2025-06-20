@@ -1,66 +1,64 @@
 package com.example.financeapp.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.financeapp.data.MockData
 import com.example.financeapp.ui.components.ListItem
-import com.example.financeapp.ui.theme.FinanceAppTheme
-import com.example.financeapp.ui.theme.AppIcons
-import com.example.financeapp.ui.theme.CustomWhite
-import com.example.financeapp.ui.theme.CustomGreen
+import com.example.financeapp.ui.theme.*
 import androidx.compose.ui.res.painterResource
 import com.example.financeapp.R
-import com.example.financeapp.ui.theme.CustomTextColor
-import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
-import com.example.financeapp.ui.theme.CustomLightGrey
-import com.example.financeapp.ui.theme.CustomLightGreen
-import androidx.compose.material3.Divider
+import com.example.financeapp.ui.screens.income.IncomeViewModel
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IncomeScreen(onIncomeClick: (String) -> Unit) {
+fun IncomeScreen(
+    onIncomeClick: (String) -> Unit,
+    viewModel: IncomeViewModel = hiltViewModel()
+) {
+    val incomes by viewModel.incomes.collectAsState()
+    val error by viewModel.error.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    if (error != null) {
+        LaunchedEffect(error) {
+            snackbarHostState.showSnackbar(error!!)
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "Доходы сегодня",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = CustomTextColor
-                        )
-                    }
+                    Text(
+                        text = "Доходы сегодня",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 },
                 actions = {
-                    IconButton(onClick = { /*TODO: Handle History click*/ }) {
+                    IconButton(onClick = { /* TODO: Handle History click */ }) {
                         Icon(
-                            painterResource(id = AppIcons.History),
+                            painter = painterResource(id = AppIcons.History),
                             contentDescription = "История",
                             tint = CustomTextColor
                         )
@@ -68,20 +66,21 @@ fun IncomeScreen(onIncomeClick: (String) -> Unit) {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CustomGreen,
-                    titleContentColor = CustomTextColor
+                    titleContentColor = CustomTextColor,
+                    actionIconContentColor = CustomTextColor
                 )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*TODO: Handle Add button click*/ },
+                onClick = { /* TODO: Handle Add button click */ },
                 containerColor = CustomGreen,
                 contentColor = CustomTextColor,
                 shape = CircleShape
             ) {
                 Icon(
                     painterResource(id = AppIcons.Plus),
-                    contentDescription = "Add income",
+                    contentDescription = "Добавить доход",
                     tint = CustomWhite
                 )
             }
@@ -91,49 +90,69 @@ fun IncomeScreen(onIncomeClick: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-        )
-        {
-            ListItem(
-                modifier = Modifier.background(CustomLightGreen),
-                content = {
-                    Text(
-                        text = "Всего",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = CustomTextColor
-                    )
-                },
-                trail = {
-                    Text(
-                        text = "600 000 ₽",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = CustomTextColor
-                    )
-                },
-                onClick = null // No click action for "Всего"
-            )
-            Divider(color = CustomLightGrey, modifier = Modifier.fillMaxWidth())
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(CustomLightGreen)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Всего",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = CustomTextColor
+                )
+                Text(
+                    text = incomes.sumOf {
+                        it.amount.replace(" ", "")
+                            .replace("₽", "")
+                            .replace(",", ".")
+                            .toDoubleOrNull() ?: 0.0
+                    }.let { total ->
+                        "%.2f ₽".format(total)
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = CustomTextColor
+                )
+            }
+            Divider(modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+
             LazyColumn {
-                items(MockData.income) { income ->
+                items(
+                    items = incomes,
+                    key = { income -> income.id }
+                ) { income ->
                     ListItem(
+                        leadingContent = {
+                            Icon(
+                                painterResource(id = R.drawable.ic_income),
+                                contentDescription = income.title,
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Unspecified
+                            )
+                        },
                         content = {
                             Column {
                                 Text(
                                     text = income.title,
-                                    style = MaterialTheme.typography.titleMedium,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = CustomTextColor
                                 )
                             }
                         },
                         trail = {
                             Text(
-                                text = income.amount,
+                                text = income.amount.toString(),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = CustomTextColor
                             )
                         },
                         onClick = { onIncomeClick(income.id) }
                     )
-                    Divider(color = CustomLightGrey, modifier = Modifier.fillMaxWidth())
+                    Divider()
                 }
             }
         }
@@ -144,6 +163,6 @@ fun IncomeScreen(onIncomeClick: (String) -> Unit) {
 @Composable
 fun IncomeScreenPreview() {
     FinanceAppTheme {
-        IncomeScreen(onIncomeClick = { /* Do nothing for preview */ })
+        IncomeScreen(onIncomeClick = { })
     }
 } 

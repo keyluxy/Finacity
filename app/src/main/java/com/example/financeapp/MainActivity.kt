@@ -42,7 +42,7 @@ import com.example.financeapp.ui.screens.ExpenseDetailScreen
 import com.example.financeapp.ui.screens.ExpensesScreen
 import com.example.financeapp.ui.screens.HistoryScreen
 import com.example.financeapp.ui.screens.IncomeDetailScreen
-import com.example.financeapp.ui.screens.IncomeScreen
+import com.example.financeapp.ui.screens.income.IncomeScreenWrapper
 import com.example.financeapp.ui.screens.SettingsScreen
 import com.example.financeapp.ui.screens.SplashScreen
 import com.example.financeapp.ui.theme.FinanceAppTheme
@@ -146,7 +146,7 @@ fun AppContent() {
     ) { innerPadding ->
         NavHost(navController, startDestination = Screen.Expenses.route, Modifier.padding(innerPadding)) {
             composable(Screen.Expenses.route) { ExpensesScreen(onExpenseClick = { expenseId -> navController.navigate("expense_detail/$expenseId") }, onHistoryClick = { navController.navigate("history_screen") }, onAnalysisClick = { navController.navigate("analysis_screen") }, onAddExpenseClick = { navController.navigate("expense_detail") }) }
-            composable(Screen.Income.route) { IncomeScreen(onIncomeClick = { incomeId -> navController.navigate("income_detail/$incomeId") }) }
+            composable(Screen.Income.route) { IncomeScreenWrapper(onIncomeClick = { incomeId -> navController.navigate("income_detail/$incomeId") }) }
             composable(Screen.Account.route) { AccountScreen() }
             composable(Screen.Categories.route) { CategoriesScreen() }
             composable(Screen.Settings.route) { SettingsScreen() }
