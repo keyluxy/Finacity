@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.financeapp.ui.components.ListItem
 import com.example.financeapp.ui.theme.*
 import androidx.compose.ui.res.painterResource
@@ -31,6 +32,8 @@ import androidx.compose.runtime.remember
 @Composable
 fun IncomeScreen(
     onIncomeClick: (String) -> Unit,
+    onHistoryClick: () -> Unit,
+    onAddIncomeClick: () -> Unit,
     viewModel: IncomeViewModel = hiltViewModel()
 ) {
     val incomes by viewModel.incomes.collectAsState()
@@ -56,7 +59,7 @@ fun IncomeScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Handle History click */ }) {
+                    IconButton(onClick = onHistoryClick) {
                         Icon(
                             painter = painterResource(id = AppIcons.History),
                             contentDescription = "История",
@@ -73,7 +76,7 @@ fun IncomeScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Handle Add button click */ },
+                onClick = onAddIncomeClick,
                 containerColor = CustomGreen,
                 contentColor = CustomTextColor,
                 shape = CircleShape
@@ -127,12 +130,20 @@ fun IncomeScreen(
                 ) { income ->
                     ListItem(
                         leadingContent = {
-                            Icon(
-                                painterResource(id = R.drawable.ic_income),
-                                contentDescription = income.title,
-                                modifier = Modifier.size(24.dp),
-                                tint = Color.Unspecified
-                            )
+                            if (!income.emoji.isNullOrBlank()) {
+                                Text(
+                                    text = income.emoji,
+                                    fontSize = 24.sp,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            } else {
+                                Icon(
+                                    painterResource(id = R.drawable.ic_income),
+                                    contentDescription = income.title,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = Color.Unspecified
+                                )
+                            }
                         },
                         content = {
                             Column {
@@ -163,6 +174,6 @@ fun IncomeScreen(
 @Composable
 fun IncomeScreenPreview() {
     FinanceAppTheme {
-        IncomeScreen(onIncomeClick = { })
+        IncomeScreen(onIncomeClick = { }, onHistoryClick = { }, onAddIncomeClick = { })
     }
 } 

@@ -146,7 +146,7 @@ fun AppContent() {
     ) { innerPadding ->
         NavHost(navController, startDestination = Screen.Expenses.route, Modifier.padding(innerPadding)) {
             composable(Screen.Expenses.route) { ExpensesScreen(onExpenseClick = { expenseId -> navController.navigate("expense_detail/$expenseId") }, onHistoryClick = { navController.navigate("history_screen") }, onAnalysisClick = { navController.navigate("analysis_screen") }, onAddExpenseClick = { navController.navigate("expense_detail") }) }
-            composable(Screen.Income.route) { IncomeScreenWrapper(onIncomeClick = { incomeId -> navController.navigate("income_detail/$incomeId") }) }
+            composable(Screen.Income.route) { IncomeScreenWrapper(onIncomeClick = { incomeId -> navController.navigate("income_detail/$incomeId") }, onHistoryClick = { navController.navigate("history_screen") }, onAddIncomeClick = { navController.navigate("income_detail") }) }
             composable(Screen.Account.route) { AccountScreen() }
             composable(Screen.Categories.route) { CategoriesScreen() }
             composable(Screen.Settings.route) { SettingsScreen() }

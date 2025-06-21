@@ -6,6 +6,7 @@ data class Income(
     val id: String,
     val title: String,
     val amount: String, // например, "500 000 ₽"
+    val emoji: String? = null, // Эмодзи из категории
     val icon: Int? = null // Иконка для ведущего изображения
 )
 

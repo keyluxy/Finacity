@@ -45,8 +45,8 @@ object MockData {
     )
 
     val income = listOf(
-        Income("1", "Зарплата", "500 000 ₽", R.drawable.ic_income),
-        Income("2", "Подработка", "100 000 ₽", R.drawable.ic_tabl)
+        Income("1", "Зарплата", "500 000 ₽", R.drawable.ic_income.toString()),
+        Income("2", "Подработка", "100 000 ₽", R.drawable.ic_tabl.toString())
     )
 
     val incomeDetailed = listOf(

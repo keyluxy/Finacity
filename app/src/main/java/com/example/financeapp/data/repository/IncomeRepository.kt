@@ -10,18 +10,32 @@ class IncomeRepository @Inject constructor(
     private val api: TransactionApi
 ) {
     suspend fun getIncomes(token: String, from: Long, to: Long): List<Income> {
-        val accounts = api.getAccounts("Bearer $token")
-        Log.d("IncomeRepository", "Все id аккаунтов: ${accounts.map { it.id }}")
-        val allIncomes = mutableListOf<Income>()
-        for (account in accounts) {
-            val transactions = api.getTransactionsForAccount("Bearer $token", account.id.toString(), from, to)
-            Log.d("IncomeRepository", "Account: ${account.id}, транзакций: ${transactions.size}")
-            transactions.forEach { Log.d("IncomeRepository", it.toString()) }
-            allIncomes += transactions
-                .filter { it.category?.isIncome == true }
-                .map { it.toIncome() }
+        Log.d("IncomeRepository", "Начинаем загрузку доходов")
+        try {
+            val accounts = api.getAccounts("Bearer $token")
+            Log.d("IncomeRepository", "Получено счетов: ${accounts.size}. IDs: ${accounts.map { it.id }}")
+            val allIncomes = mutableListOf<Income>()
+            for (account in accounts) {
+                Log.d("IncomeRepository", "Запрос транзакций для счета ID: ${account.id}")
+                val transactions = api.getTransactionsForAccount("Bearer $token", account.id.toString(), from, to)
+                Log.d("IncomeRepository", "Счет ID: ${account.id}, получено транзакций: ${transactions.size}")
+
+                transactions.forEach { transaction ->
+                    Log.d("IncomeRepository", "Транзакция: $transaction, isIncome: ${transaction.category?.isIncome}")
+                }
+
+                val incomesForAccount = transactions
+                    .filter { it.category?.isIncome == true }
+                    .map { it.toIncome() }
+
+                Log.d("IncomeRepository", "Счет ID: ${account.id}, найдено доходов: ${incomesForAccount.size}")
+                allIncomes += incomesForAccount
+            }
+            Log.d("IncomeRepository", "Всего доходов после фильтрации: ${allIncomes.size}")
+            return allIncomes
+        } catch (e: Exception) {
+            Log.e("IncomeRepository", "Ошибка при загрузке доходов", e)
+            throw e
         }
-        Log.d("IncomeRepository", "Всего доходов после фильтрации: ${allIncomes.size}")
-        return allIncomes
     }
 } 
