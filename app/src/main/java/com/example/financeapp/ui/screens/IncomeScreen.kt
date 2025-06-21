@@ -1,5 +1,7 @@
 package com.example.financeapp.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,7 +29,10 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
+import com.example.financeapp.data.model.Income
+import com.example.financeapp.ui.state.UiState
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IncomeScreen(
@@ -36,18 +41,9 @@ fun IncomeScreen(
     onAddIncomeClick: () -> Unit,
     viewModel: IncomeViewModel = hiltViewModel()
 ) {
-    val incomes by viewModel.incomes.collectAsState()
-    val error by viewModel.error.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    if (error != null) {
-        LaunchedEffect(error) {
-            snackbarHostState.showSnackbar(error!!)
-        }
-    }
+    val uiState = viewModel.uiState.collectAsState()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -94,76 +90,115 @@ fun IncomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(CustomLightGreen)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Всего",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = CustomTextColor
-                )
-                Text(
-                    text = incomes.sumOf {
-                        it.amount.replace(" ", "")
-                            .replace("₽", "")
-                            .replace(",", ".")
-                            .toDoubleOrNull() ?: 0.0
-                    }.let { total ->
-                        "%.2f ₽".format(total)
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = CustomTextColor
-                )
-            }
-            Divider(modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn {
-                items(
-                    items = incomes,
-                    key = { income -> income.id }
-                ) { income ->
-                    ListItem(
-                        leadingContent = {
-                            if (!income.emoji.isNullOrBlank()) {
+            when (val state = uiState.value) {
+                is UiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is UiState.Success -> {
+                    val incomes = state.data
+                    if (incomes.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Нет данных для отображения")
+                        }
+                    } else {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(CustomLightGreen)
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
-                                    text = income.emoji,
-                                    fontSize = 24.sp,
-                                    modifier = Modifier.size(32.dp)
+                                    text = "Всего",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = CustomTextColor
                                 )
-                            } else {
-                                Icon(
-                                    painterResource(id = R.drawable.ic_income),
-                                    contentDescription = income.title,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color.Unspecified
-                                )
-                            }
-                        },
-                        content = {
-                            Column {
                                 Text(
-                                    text = income.title,
+                                    text = incomes.sumOf {
+                                        it.amount.replace(" ", "")
+                                            .replace("₽", "")
+                                            .replace(",", ".")
+                                            .toDoubleOrNull() ?: 0.0
+                                    }.let { total ->
+                                        "%.2f ₽".format(total)
+                                    },
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = CustomTextColor
                                 )
                             }
-                        },
-                        trail = {
-                            Text(
-                                text = income.amount.toString(),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = CustomTextColor
-                            )
-                        },
-                        onClick = { onIncomeClick(income.id) }
-                    )
-                    Divider()
+                            Divider(modifier = Modifier.fillMaxWidth())
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            LazyColumn {
+                                items(
+                                    items = incomes,
+                                    key = { income -> income.id }
+                                ) { income ->
+                                    ListItem(
+                                        leadingContent = {
+                                            if (!income.emoji.isNullOrBlank()) {
+                                                Text(
+                                                    text = income.emoji,
+                                                    fontSize = 24.sp,
+                                                    modifier = Modifier.size(32.dp)
+                                                )
+                                            } else {
+                                                Icon(
+                                                    painterResource(id = R.drawable.ic_income),
+                                                    contentDescription = income.title,
+                                                    modifier = Modifier.size(24.dp),
+                                                    tint = Color.Unspecified
+                                                )
+                                            }
+                                        },
+                                        content = {
+                                            Column {
+                                                Text(
+                                                    text = income.title,
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    color = CustomTextColor
+                                                )
+                                            }
+                                        },
+                                        trail = {
+                                            Text(
+                                                text = income.amount.toString(),
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = CustomTextColor
+                                            )
+                                        },
+                                        onClick = { onIncomeClick(income.id) }
+                                    )
+                                    Divider()
+                                }
+                            }
+                        }
+                    }
+                }
+                is UiState.Error -> {
+                    val errorMessage = state.message
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = errorMessage, color = Color.Red)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(onClick = { viewModel.loadIncomes() }) {
+                                Text("Попробовать снова")
+                            }
+                        }
+                    }
                 }
             }
         }

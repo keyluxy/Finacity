@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.financeapp.data.model.Expense
 import com.example.financeapp.data.repository.ExpenseRepository
+import com.example.financeapp.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,11 +24,8 @@ class ExpensesViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository
 ) : ViewModel() {
 
-    private val _expenses = MutableStateFlow<List<Expense>>(emptyList())
-    val expenses: StateFlow<List<Expense>> = _expenses
-
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
+    private val _uiState = MutableStateFlow<UiState<List<Expense>>>(UiState.Loading)
+    val uiState: StateFlow<UiState<List<Expense>>> = _uiState
 
     private val token = "fVkPLrT88G3QIadT9IfB9hdH" // TODO: вынести в secure storage
 
@@ -43,16 +41,18 @@ class ExpensesViewModel @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun loadExpenses() {
+    fun loadExpenses() {
         viewModelScope.launch {
+            _uiState.value = UiState.Loading
             try {
                 val (from, to) = getWideTimestamps()
                 Log.d("ExpensesViewModel", "from: $from, to: $to")
-                _expenses.value = withContext(Dispatchers.IO) {
+                val expenses = withContext(Dispatchers.IO) {
                     expenseRepository.getExpenses(token, from, to)
                 }
+                _uiState.value = UiState.Success(expenses)
             } catch (e: Exception) {
-                _error.value = e.message ?: "Ошибка загрузки расходов"
+                _uiState.value = UiState.Error(e.message ?: "Ошибка загрузки расходов")
             }
         }
     }

@@ -30,6 +30,8 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
+import com.example.financeapp.data.model.Expense
+import com.example.financeapp.ui.state.UiState
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,18 +43,9 @@ fun ExpensesScreen(
     onAddExpenseClick: () -> Unit,
     viewModel: ExpensesViewModel = hiltViewModel()
 ) {
-    val expenses by viewModel.expenses.collectAsState()
-    val error by viewModel.error.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    if (error != null) {
-        LaunchedEffect(error) {
-            snackbarHostState.showSnackbar(error!!)
-        }
-    }
+    val uiState = viewModel.uiState.collectAsState()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -99,82 +92,122 @@ fun ExpensesScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(CustomLightGreen)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Всего",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = CustomTextColor
-                )
-                Text(
-                    text = expenses.sumOf {
-                        it.amount.replace(" ", "")
-                            .replace("₽", "")
-                            .replace(",", ".")
-                            .toDoubleOrNull() ?: 0.0
-                    }.let { total ->
-                        "%.2f ₽".format(total)
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = CustomTextColor
-                )
-            }
-            Divider(modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn {
-                items(
-                    items = expenses,
-                    key = { expense -> expense.id }
-                ) { expense ->
-                    ListItem(
-                        leadingContent = {
-                            if (!expense.emoji.isNullOrBlank()) {
+            when (val state = uiState.value) {
+                is UiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is UiState.Success -> {
+                    val expenses = state.data
+                    if (expenses.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Нет данных для отображения")
+                        }
+                    } else {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(CustomLightGreen)
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
-                                    text = expense.emoji,
-                                    fontSize = 24.sp,
-                                    modifier = Modifier.size(32.dp)
+                                    text = "Всего",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = CustomTextColor
                                 )
-                            } else {
-                                Icon(
-                                    painterResource(id = R.drawable.ic_expenses),
-                                    contentDescription = expense.title,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color.Unspecified
-                                )
-                            }
-                        },
-                        content = {
-                            Column {
                                 Text(
-                                    text = expense.title,
+                                    text = expenses.sumOf {
+                                        it.amount.replace(" ", "")
+                                            .replace("₽", "")
+                                            .replace(",", ".")
+                                            .toDoubleOrNull() ?: 0.0
+                                    }.let { total ->
+                                        "%.2f ₽".format(total)
+                                    },
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = CustomTextColor
                                 )
                             }
-                        },
-                        trail = {
-                            Text(
-                                text = expense.amount.toString(),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = CustomTextColor
-                            )
-                        },
-                        onClick = { onExpenseClick(expense.id) }
-                    )
-                    Divider()
+                            Divider(modifier = Modifier.fillMaxWidth())
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            LazyColumn {
+                                items(
+                                    items = expenses,
+                                    key = { expense -> expense.id }
+                                ) { expense ->
+                                    ListItem(
+                                        leadingContent = {
+                                            if (!expense.emoji.isNullOrBlank()) {
+                                                Text(
+                                                    text = expense.emoji,
+                                                    fontSize = 24.sp,
+                                                    modifier = Modifier.size(32.dp)
+                                                )
+                                            } else {
+                                                Icon(
+                                                    painterResource(id = R.drawable.ic_expenses),
+                                                    contentDescription = expense.title,
+                                                    modifier = Modifier.size(24.dp),
+                                                    tint = Color.Unspecified
+                                                )
+                                            }
+                                        },
+                                        content = {
+                                            Column {
+                                                Text(
+                                                    text = expense.title,
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    color = CustomTextColor
+                                                )
+                                            }
+                                        },
+                                        trail = {
+                                            Text(
+                                                text = expense.amount.toString(),
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = CustomTextColor
+                                            )
+                                        },
+                                        onClick = { onExpenseClick(expense.id) }
+                                    )
+                                    Divider()
+                                }
+                            }
+                        }
+                    }
+                }
+                is UiState.Error -> {
+                    val errorMessage = state.message
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = errorMessage, color = Color.Red)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(onClick = { viewModel.loadExpenses() }) {
+                                Text("Попробовать снова")
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun ExpensesScreenPreview() {
