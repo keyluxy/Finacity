@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.financeapp.data.model.Income
 import com.example.financeapp.data.repository.IncomeRepository
+import com.example.financeapp.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,11 +24,8 @@ class IncomeViewModel @Inject constructor(
     private val incomeRepository: IncomeRepository
 ) : ViewModel() {
 
-    private val _incomes = MutableStateFlow<List<Income>>(emptyList())
-    val incomes: StateFlow<List<Income>> = _incomes
-
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
+    private val _uiState = MutableStateFlow<UiState<List<Income>>>(UiState.Loading)
+    val uiState: StateFlow<UiState<List<Income>>> = _uiState
 
     private val token = "fVkPLrT88G3QIadT9IfB9hdH" // TODO: вынести в secure storage
 
@@ -45,15 +43,18 @@ class IncomeViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadIncomes() {
         viewModelScope.launch {
+            _uiState.value = UiState.Loading
             try {
                 val (from, to) = getWideTimestamps()
                 Log.d("IncomeViewModel", "Загрузка доходов. from: $from, to: $to")
-                _incomes.value = withContext(Dispatchers.IO) {
+                val incomes = withContext(Dispatchers.IO) {
                     incomeRepository.getIncomes(token, from, to)
                 }
-                Log.d("IncomeViewModel", "Загружено ${_incomes.value.size} доходов")
+                _uiState.value = UiState.Success(incomes)
+                Log.d("IncomeViewModel", "Загружено ${_uiState.value} доходов")
             } catch (e: Exception) {
-                _error.value = e.message ?: "Ошибка загрузки доходов"
+                val errorMessage = e.message ?: "Ошибка загрузки доходов"
+                _uiState.value = UiState.Error(errorMessage)
                 Log.e("IncomeViewModel", "Ошибка при загрузке доходов", e)
             }
         }
