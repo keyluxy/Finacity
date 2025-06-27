@@ -5,8 +5,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.financeapp.data.model.Expense
-import com.example.financeapp.data.repository.ExpenseRepository
+import com.example.financeapp.domain.expenses.Expense
+import com.example.financeapp.domain.expenses.GetExpensesUseCase
 import com.example.financeapp.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +18,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+/**
+ * ViewModel для экрана расходов.
+ * Отвечает только за хранение состояния UI и вызов use-case.
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class ExpensesViewModel @Inject constructor(
-    private val expenseRepository: ExpenseRepository
+    private val getExpensesUseCase: GetExpensesUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<List<Expense>>>(UiState.Loading)
@@ -48,7 +52,7 @@ class ExpensesViewModel @Inject constructor(
                 val (from, to) = getWideTimestamps()
                 Log.d("ExpensesViewModel", "from: $from, to: $to")
                 val expenses = withContext(Dispatchers.IO) {
-                    expenseRepository.getExpenses(token, from, to)
+                    getExpensesUseCase(token, from, to)
                 }
                 _uiState.value = UiState.Success(expenses)
             } catch (e: Exception) {

@@ -1,7 +1,10 @@
 package com.example.financeapp.di
 
 import com.example.financeapp.data.remote.TransactionApi
-import com.example.financeapp.data.repository.ExpenseRepository
+import com.example.financeapp.data.expenses.ExpenseRemoteDataSource
+import com.example.financeapp.data.expenses.ExpenseRepositoryImpl
+import com.example.financeapp.domain.expenses.ExpenseRepository
+import com.example.financeapp.domain.expenses.GetExpensesUseCase
 import com.example.financeapp.data.repository.IncomeRepository
 import dagger.Module
 import dagger.Provides
@@ -29,7 +32,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideExpenseRepository(api: TransactionApi): ExpenseRepository = ExpenseRepository(api)
+    fun provideExpenseRemoteDataSource(api: TransactionApi): ExpenseRemoteDataSource =
+        ExpenseRemoteDataSource(api)
+
+    @Provides
+    @Singleton
+    fun provideExpenseRepository(remoteDataSource: ExpenseRemoteDataSource): ExpenseRepository =
+        ExpenseRepositoryImpl(remoteDataSource)
+
+    @Provides
+    @Singleton
+    fun provideGetExpensesUseCase(repository: ExpenseRepository): GetExpensesUseCase =
+        GetExpensesUseCase(repository)
 
     @Provides
     @Singleton
